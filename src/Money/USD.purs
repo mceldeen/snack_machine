@@ -1,15 +1,22 @@
-module Money.USD (USD, usd) where
+module Money.USD
+    ( USD
+    , cents
+    ) where
 
-import Prelude (class Eq, (<$>))
-import Data.Semiring (class Semiring, add, zero, mul, one)
-import Data.Ring (class Ring, sub)
-import Test.QuickCheck.Arbitrary (class Arbitrary)
 import Control.Monad.Gen.Class (chooseInt)
+import Data.Lens (Lens', lens)
+import Data.Ring (class Ring, sub)
+import Data.Semiring (class Semiring, add, zero, mul, one)
+import Prelude (class Eq, (<$>))
+import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 newtype USD = USD Int
 
-usd ∷ Int → USD
-usd cents = USD cents
+cents ∷ Lens' USD Int
+cents =
+    lens 
+        (\(USD cents) → cents)
+        (\(USD _) cents → USD cents)
 
 derive instance eqUSD ∷ Eq USD
 
@@ -23,4 +30,4 @@ instance ringUSD ∷ Ring USD where
     sub (USD a) (USD b) = USD (sub a b)
 
 instance arbitraryUSD ∷ Arbitrary USD where
-    arbitrary = usd <$> chooseInt 0 10000
+    arbitrary = USD <$> chooseInt 0 10000
