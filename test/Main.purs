@@ -12,6 +12,7 @@ import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff (Eff)
 
 import Money.USD (USD)
+import Money.USDBag (USDBag)
 
 main ∷ ∀ e. Eff ( console ∷ CONSOLE, testOutput ∷ TESTOUTPUT, avar ∷ AVAR, random ∷ RANDOM | e ) Unit
 main = runTest do
@@ -34,6 +35,26 @@ main = runTest do
 
     suite "ring" do
       test "additive inverse" $ quickCheck ((additiveInverse sub add zero) ∷ USD → Boolean)
+
+  suite "USDBag" do
+    suite "semiring" do
+      suite "addition" do
+        test "associative" $ quickCheck ((associative add) ∷ USDBag → USDBag → USDBag → Boolean)
+        test "identity" $ quickCheck ((identity add zero) ∷  USDBag → Boolean)
+        test "commutative" $ quickCheck ((commutative add) ∷ USDBag → USDBag → Boolean)
+
+      suite "mutliplication" do
+        test "associative" $ quickCheck ((associative mul) ∷ USDBag → USDBag → USDBag → Boolean)
+        test "identity" $ quickCheck ((identity mul one) ∷  USDBag → Boolean)
+
+      suite "addition with multiplication" do
+        test "left distributivity" $ quickCheck ((leftDistributivity mul add) ∷ USDBag → USDBag → USDBag → Boolean)
+        test "right distributivity" $ quickCheck ((rightDistributivity mul add) ∷ USDBag → USDBag → USDBag → Boolean)
+
+      test "annihilation" $ quickCheck ((annihilation mul zero) ∷ USDBag → Boolean)
+
+    suite "ring" do
+      test "additive inverse" $ quickCheck ((additiveInverse sub add zero) ∷ USDBag → Boolean)
 
 associative ∷ ∀ a. Eq a ⇒ (a → a → a) → a → a → a → Boolean
 associative op a b c =

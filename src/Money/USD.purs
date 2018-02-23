@@ -8,6 +8,9 @@ import Control.Monad.Gen.Class (chooseInt)
 
 newtype USD = USD Int
 
+usd ∷ Int → USD
+usd cents = USD cents
+
 derive instance eqUSD ∷ Eq USD
 
 instance semiringUSD ∷ Semiring USD where
@@ -20,7 +23,4 @@ instance ringUSD ∷ Ring USD where
     sub (USD a) (USD b) = USD (sub a b)
 
 instance arbitraryUSD ∷ Arbitrary USD where
-    arbitrary = USD <$> chooseInt 0 10000
-
-usd ∷ Int → USD
-usd cents = USD cents
+    arbitrary = usd <$> chooseInt 0 10000
