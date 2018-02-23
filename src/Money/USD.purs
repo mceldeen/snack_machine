@@ -12,13 +12,13 @@ module Money.USD
     ) where
 
 import Control.Monad.Gen.Class (chooseInt)
-import Data.Lens (Lens', lens, set, view)
+import Data.Either (Either(..), either)
+import Data.Lens (Lens', lens, set, view, (.~), (^.))
 import Data.Ring (class Ring, sub)
 import Data.Semiring (class Semiring, zero, one)
-import Test.QuickCheck.Arbitrary (class Arbitrary)
-import Data.Either (Either(..), either)
 import Money.CanMakeChange (class CanMakeChange, MakeChangeError(..))
 import Prelude (class Eq, const, min, ($), (*), (+), (-), (/), (<#>), (<$>), (<*>), (==), (>>=))
+import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 newtype USD = USD Int
 
@@ -53,8 +53,15 @@ newtype USDWallet =
         }
 
 usdWallet ∷ Int → Int → Int → Int → Int → Int → USDWallet
-usdWallet oneCentCount tenCentCount quarterCount oneDollarCount fiveDollarCount twentyDollarCount =
-    USDWallet {  oneCentCount, tenCentCount, quarterCount, oneDollarCount, fiveDollarCount, twentyDollarCount }
+usdWallet pennies dimes quarters oneDollarBills fiveDollarBills twentyDollarBills =
+    USDWallet
+        { oneCentCount: pennies
+        , tenCentCount: dimes
+        , quarterCount: quarters
+        , oneDollarCount: oneDollarBills
+        , fiveDollarCount: fiveDollarBills
+        , twentyDollarCount: twentyDollarBills
+        }
 
 twentyDollarCount :: Lens' USDWallet Int
 twentyDollarCount =
@@ -181,13 +188,13 @@ instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
             makeChangeForDenomination denominationInCents unitLens {change, amountInCents} =
                 let
                     maxUnitsToConsume = amountInCents / denominationInCents
-                    unitsToConsume = min maxUnitsToConsume (view unitLens bag)
+                    unitsToConsume = min maxUnitsToConsume (bag ^. unitLens)
                     remainder = amountInCents - (unitsToConsume * denominationInCents)
                 in
                     if remainder == 0 then
                         Left $ set unitLens unitsToConsume change
                     else
                         Right $
-                            { change: set unitLens unitsToConsume change
+                            { change: (unitLens .~ unitsToConsume) change
                             , amountInCents: remainder
                             }
