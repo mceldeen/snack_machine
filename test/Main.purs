@@ -12,7 +12,13 @@ import Test.Unit.Main (runTest)
 import Test.Money.USD as Test.Money.USD
 import Test.Money.CanMakeChange as Test.Money.CanMakeChange
 
-main ∷ ∀ e. Eff ( console ∷ CONSOLE, testOutput ∷ TESTOUTPUT, avar ∷ AVAR, random ∷ RANDOM | e ) Unit
+main ∷ ∀ eff. Eff
+  ( console ∷ CONSOLE
+  , testOutput ∷ TESTOUTPUT
+  , avar ∷ AVAR
+  , random ∷ RANDOM
+  | eff
+  ) Unit
 main = runTest do
   Test.Money.USD.main
   Test.Money.CanMakeChange.main
