@@ -1,9 +1,11 @@
 module Money.CanMakeChange where
 
-import Data.Either (Either)
-import Data.Ring (class Ring)
+import Data.Either (Either(..), either)
+import Data.Lens (Lens', (.~), (^.))
+import Data.Ring (class Ring, zero, (*), (-))
 import Data.Show (class Show)
-import Prelude (class Eq)
+import Money.USD (USD, USDWallet, cents, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
+import Prelude (class Eq, const, min, ($), (/), (<#>), (==), (>>=))
 
 data MakeChangeError = CannotMakeChange
 
@@ -17,3 +19,40 @@ class (Ring moneySet, Ring amount) ⇐ CanMakeChange moneySet amount where
     -- | figures out how to allocate value from the moneySet that is equivalent to the amount.
     -- | returns MakeChangeError if it can't allocate the exact amount from the moneySet.
     makeChange ∷ moneySet → amount → Either MakeChangeError moneySet
+
+
+instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
+    makeChange bag amount =
+          swapRightAndLeft result
+        where
+            swapRightAndLeft =
+                either Right Left
+
+            result =
+                Right { change: (zero ∷ USDWallet), amountInCents: (amount ^. cents) }
+                    >>= makeChangeForDenomination 2000 twentyDollarCount
+                    >>= makeChangeForDenomination 500 fiveDollarCount
+                    >>= makeChangeForDenomination 100 oneDollarCount
+                    >>= makeChangeForDenomination 25 quarterCount
+                    >>= makeChangeForDenomination 10 tenCentCount
+                    >>= makeChangeForDenomination 1 oneCentCount
+                    <#> const CannotMakeChange
+
+            makeChangeForDenomination
+                ∷ Int
+                → Lens' USDWallet Int
+                → {change ∷ USDWallet, amountInCents ∷ Int}
+                → Either USDWallet {change ∷ USDWallet, amountInCents ∷ Int}
+            makeChangeForDenomination denominationInCents denominationLens {change, amountInCents} =
+                let
+                    maxUnitsToConsume = amountInCents / denominationInCents
+                    unitsToConsume = min maxUnitsToConsume (bag ^. denominationLens)
+                    remainder = amountInCents - (unitsToConsume * denominationInCents)
+                in
+                    if remainder == 0 then
+                        Left $ denominationLens .~ unitsToConsume $ change
+                    else
+                        Right $
+                            { change: denominationLens .~ unitsToConsume $ change
+                            , amountInCents: remainder
+                            }

@@ -11,12 +11,10 @@ module Money.USD
     ) where
 
 import Control.Monad.Gen.Class (chooseInt)
-import Data.Either (Either(..), either)
-import Data.Lens (Lens', lens, set, view, (.~), (^.))
+import Data.Lens (Lens', lens)
 import Data.Ring (class Ring, sub)
 import Data.Semiring (class Semiring, zero, one)
-import Money.CanMakeChange (class CanMakeChange, MakeChangeError(..))
-import Prelude (class Eq, const, min, ($), (*), (+), (-), (/), (<#>), (<$>), (<*>), (==), (>>=))
+import Prelude (class Eq, ($), (*), (+), (-), (<$>), (<*>))
 import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 newtype USD = USD Int
@@ -161,39 +159,3 @@ instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
             <*> chooseInt 0 100
             <*> chooseInt 0 100
             <*> chooseInt 0 100
-
-instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
-    makeChange bag amount =
-          swapRightAndLeft result
-        where
-            swapRightAndLeft =
-                either Right Left
-
-            result =
-                Right { change: (zero ∷ USDWallet), amountInCents: (view cents amount) }
-                    >>= makeChangeForDenomination 2000 twentyDollarCount
-                    >>= makeChangeForDenomination 500 fiveDollarCount
-                    >>= makeChangeForDenomination 100 oneDollarCount
-                    >>= makeChangeForDenomination 25 quarterCount
-                    >>= makeChangeForDenomination 10 tenCentCount
-                    >>= makeChangeForDenomination 1 oneCentCount
-                    <#> const CannotMakeChange
-
-            makeChangeForDenomination
-                ∷ Int
-                → Lens' USDWallet Int
-                → {change ∷ USDWallet, amountInCents ∷ Int}
-                → Either USDWallet {change ∷ USDWallet, amountInCents ∷ Int}
-            makeChangeForDenomination denominationInCents denominationLens {change, amountInCents} =
-                let
-                    maxUnitsToConsume = amountInCents / denominationInCents
-                    unitsToConsume = min maxUnitsToConsume (bag ^. denominationLens)
-                    remainder = amountInCents - (unitsToConsume * denominationInCents)
-                in
-                    if remainder == 0 then
-                        Left $ set denominationLens unitsToConsume change
-                    else
-                        Right $
-                            { change: (denominationLens .~ unitsToConsume) change
-                            , amountInCents: remainder
-                            }
