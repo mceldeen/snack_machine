@@ -5,7 +5,15 @@ import Prelude
 import Data.Either (Either(..))
 import Data.Lens ((.~), (^.))
 import Money.CanMakeChange (MakeChangeError(..), makeChange)
-import Money.USD (cents, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
+import Money.USD
+  (cents
+  , fiveDollarCount
+  , oneCentCount
+  , oneDollarCount
+  , quarterCount
+  , tenCentCount
+  , twentyDollarCount
+  )
 import Test.Unit (TestSuite, failure, suite, test)
 import Test.Unit.Assert as Assert
 
