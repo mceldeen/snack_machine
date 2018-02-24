@@ -56,13 +56,13 @@ derive instance eqUSDWallet ∷ Eq USDWallet
 derive instance ordUSDWallet ∷ Ord USDWallet
 
 instance semiringUSDWallet ∷ Semiring USDWallet where
-    add  = mapOp (+)
+    add  = liftOp (+)
     zero = usdWallet 0 0 0 0 0 0
-    mul  = mapOp (*)
+    mul  = liftOp (*)
     one  = usdWallet 1 1 1 1 1 1
 
 instance ringUSDWallet ∷ Ring USDWallet where
-    sub = mapOp (-)
+    sub = liftOp (-)
 
 instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
     arbitrary =
@@ -74,8 +74,8 @@ instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
             <*> chooseInt 0 100
             <*> chooseInt 0 100
 
-mapOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
-mapOp op (USDWallet a) (USDWallet b) =
+liftOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
+liftOp op (USDWallet a) (USDWallet b) =
     USDWallet
         { oneCentCount: a.oneCentCount `op` b.oneCentCount
         , tenCentCount: a.tenCentCount `op` b.tenCentCount
