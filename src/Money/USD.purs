@@ -14,7 +14,7 @@ import Control.Monad.Gen.Class (chooseInt)
 import Data.Lens (Lens', lens)
 import Data.Ring (class Ring, sub)
 import Data.Semiring (class Semiring, zero, one)
-import Prelude (class Eq, ($), (*), (+), (-), (<$>), (<*>))
+import Prelude (class Eq, class Ord, ($), (*), (+), (-), (<$>), (<*>))
 import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 newtype USD = USD Int
@@ -26,6 +26,8 @@ cents =
         (\(USD _) c → USD c)
 
 derive instance eqUSD ∷ Eq USD
+
+derive instance ordUSD ∷ Ord USD
 
 instance semiringUSD ∷ Semiring USD where
     add (USD a) (USD b) = USD (a + b)
@@ -47,6 +49,40 @@ newtype USDWallet =
         , oneDollarCount ∷ Int
         , fiveDollarCount ∷ Int
         , twentyDollarCount ∷ Int
+        }
+
+derive instance eqUSDWallet ∷ Eq USDWallet
+
+derive instance ordUSDWallet ∷ Ord USDWallet
+
+instance semiringUSDWallet ∷ Semiring USDWallet where
+    add  = mapOp (+)
+    zero = usdWallet 0 0 0 0 0 0
+    mul  = mapOp (*)
+    one  = usdWallet 1 1 1 1 1 1
+
+instance ringUSDWallet ∷ Ring USDWallet where
+    sub = mapOp (-)
+
+instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
+    arbitrary =
+        usdWallet
+            <$> chooseInt 0 100
+            <*> chooseInt 0 100
+            <*> chooseInt 0 100
+            <*> chooseInt 0 100
+            <*> chooseInt 0 100
+            <*> chooseInt 0 100
+
+mapOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
+mapOp op (USDWallet a) (USDWallet b) =
+    USDWallet
+        { oneCentCount: a.oneCentCount `op` b.oneCentCount
+        , tenCentCount: a.tenCentCount `op` b.tenCentCount
+        , quarterCount: a.quarterCount `op` b.quarterCount
+        , oneDollarCount: a.oneDollarCount `op` b.oneDollarCount
+        , fiveDollarCount: a.fiveDollarCount `op` b.fiveDollarCount
+        , twentyDollarCount: a.twentyDollarCount `op` b.twentyDollarCount
         }
 
 usdWallet ∷ Int → Int → Int → Int → Int → Int → USDWallet
@@ -95,35 +131,3 @@ oneCentCount =
     lens
         (\(USDWallet bag) → bag.oneCentCount)
         (\(USDWallet bag) c → USDWallet $ bag { oneCentCount = c })
-
-derive instance eqUSDWallet ∷ Eq USDWallet
-
-instance semiringUSDWallet ∷ Semiring USDWallet where
-    add  = mapOp (+)
-    zero = usdWallet 0 0 0 0 0 0
-    mul  = mapOp (*)
-    one  = usdWallet 1 1 1 1 1 1
-
-instance ringUSDWallet ∷ Ring USDWallet where
-    sub = mapOp (-)
-
-instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
-    arbitrary =
-        usdWallet
-            <$> chooseInt 0 100
-            <*> chooseInt 0 100
-            <*> chooseInt 0 100
-            <*> chooseInt 0 100
-            <*> chooseInt 0 100
-            <*> chooseInt 0 100
-
-mapOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
-mapOp op (USDWallet a) (USDWallet b) =
-    USDWallet
-        { oneCentCount: a.oneCentCount `op` b.oneCentCount
-        , tenCentCount: a.tenCentCount `op` b.tenCentCount
-        , quarterCount: a.quarterCount `op` b.quarterCount
-        , oneDollarCount: a.oneDollarCount `op` b.oneDollarCount
-        , fiveDollarCount: a.fiveDollarCount `op` b.fiveDollarCount
-        , twentyDollarCount: a.twentyDollarCount `op` b.twentyDollarCount
-        }
