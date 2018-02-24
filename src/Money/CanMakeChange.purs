@@ -5,7 +5,7 @@ import Data.Lens (Lens', (.~), (^.))
 import Data.Ring (class Ring, zero, (*), (-))
 import Data.Show (class Show)
 import Money.USD (USD, USDWallet, cents, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
-import Prelude (class Eq, const, min, ($), (/), (<#>), (==), (>>=))
+import Prelude (class Eq, const, min, ($), (/), (<), (<#>), (==), (>>=))
 
 data MakeChangeError = CannotMakeChange
 
@@ -20,9 +20,15 @@ class (Ring moneySet, Ring amount) ⇐ CanMakeChange moneySet amount where
     -- | returns MakeChangeError if it can't allocate the exact amount from the moneySet.
     makeChange ∷ moneySet → amount → Either MakeChangeError moneySet
 
+instance canMakeChangeInt ∷ CanMakeChange Int Int where
+    makeChange moneySet amount =
+        if moneySet < amount then
+            Left CannotMakeChange
+        else
+            Right amount
 
 instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
-    makeChange bag amount =
+    makeChange moneySet amount =
           swapRightAndLeft result
         where
             swapRightAndLeft =
@@ -46,7 +52,7 @@ instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
             makeChangeForDenomination denominationInCents denominationLens {change, amountInCents} =
                 let
                     maxUnitsToConsume = amountInCents / denominationInCents
-                    unitsToConsume = min maxUnitsToConsume (bag ^. denominationLens)
+                    unitsToConsume = min maxUnitsToConsume (moneySet ^. denominationLens)
                     remainder = amountInCents - (unitsToConsume * denominationInCents)
                 in
                     if remainder == 0 then
