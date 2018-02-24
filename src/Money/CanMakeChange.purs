@@ -1,11 +1,17 @@
 module Money.CanMakeChange where
 
+import Control.Monad ((>>=))
 import Data.Either (Either(..), either)
+import Data.Eq (class Eq, (==))
+import Data.EuclideanRing ((/))
+import Data.Functor ((<#>))
 import Data.Lens (Lens', (.~), (^.))
+import Data.Ord (min, (<))
 import Data.Ring (class Ring, zero, (*), (-))
 import Data.Show (class Show)
-import Money.USD (USD, USDWallet, cents, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
-import Prelude (class Eq, const, min, ($), (/), (<), (<#>), (==), (>>=))
+import Money.USD (USD, cents)
+import Money.USDWallet (USDWallet, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
+import Prelude (const, ($))
 
 data MakeChangeError = CannotMakeChange
 

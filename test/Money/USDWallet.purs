@@ -6,7 +6,7 @@ import Control.Monad.Eff.Random (RANDOM)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.QuickCheck (quickCheck)
 
-import Money.USD (USDWallet)
+import Money.USDWallet (USDWallet)
 
 main :: ∀ e. TestSuite ( random :: RANDOM | e )
 main =

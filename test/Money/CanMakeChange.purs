@@ -5,9 +5,9 @@ import Prelude
 import Data.Either (Either(..))
 import Data.Lens ((.~), (^.))
 import Money.CanMakeChange (MakeChangeError(..), makeChange)
-import Money.USD
-  (cents
-  , fiveDollarCount
+import Money.USD (cents)
+import Money.USDWallet
+  ( fiveDollarCount
   , oneCentCount
   , oneDollarCount
   , quarterCount
