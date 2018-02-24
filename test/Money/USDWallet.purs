@@ -1,4 +1,4 @@
-module Test.Money.USD where
+module Test.Money.USDWallet where
 
 import Prelude
 
@@ -6,30 +6,30 @@ import Control.Monad.Eff.Random (RANDOM)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.QuickCheck (quickCheck)
 
-import Money.USD (USD)
+import Money.USD (USDWallet)
 
 main :: ∀ e. TestSuite ( random :: RANDOM | e )
 main =
-  suite "Money.USD" do
-    suite "USD" do
-      suite "semiring" do
+  suite "Money.USDWallet" do
+    suite "USDWallet" do
+      suite "Semiring" do
         suite "addition" do
-          test "associative" $ quickCheck ((associative add) ∷ USD → USD → USD → Boolean)
-          test "identity" $ quickCheck ((identity add zero) ∷  USD → Boolean)
-          test "commutative" $ quickCheck ((commutative add) ∷ USD → USD → Boolean)
+          test "associative" $ quickCheck ((associative add) ∷ USDWallet → USDWallet → USDWallet → Boolean)
+          test "identity" $ quickCheck ((identity add zero) ∷  USDWallet → Boolean)
+          test "commutative" $ quickCheck ((commutative add) ∷ USDWallet → USDWallet → Boolean)
 
         suite "mutliplication" do
-          test "associative" $ quickCheck ((associative mul) ∷ USD → USD → USD → Boolean)
-          test "identity" $ quickCheck ((identity mul one) ∷  USD → Boolean)
+          test "associative" $ quickCheck ((associative mul) ∷ USDWallet → USDWallet → USDWallet → Boolean)
+          test "identity" $ quickCheck ((identity mul one) ∷  USDWallet → Boolean)
 
         suite "addition with multiplication" do
-          test "left distributivity" $ quickCheck ((leftDistributivity mul add) ∷ USD → USD → USD → Boolean)
-          test "right distributivity" $ quickCheck ((rightDistributivity mul add) ∷ USD → USD → USD → Boolean)
+          test "left distributivity" $ quickCheck ((leftDistributivity mul add) ∷ USDWallet → USDWallet → USDWallet → Boolean)
+          test "right distributivity" $ quickCheck ((rightDistributivity mul add) ∷ USDWallet → USDWallet → USDWallet → Boolean)
 
-        test "annihilation" $ quickCheck ((annihilation mul zero) ∷ USD → Boolean)
+        test "annihilation" $ quickCheck ((annihilation mul zero) ∷ USDWallet → Boolean)
 
-      suite "ring" do
-        test "additive inverse" $ quickCheck ((additiveInverse sub add zero) ∷ USD → Boolean)
+      suite "Ring" do
+        test "additive inverse" $ quickCheck ((additiveInverse sub add zero) ∷ USDWallet → Boolean)
 
 associative ∷ ∀ a. Eq a ⇒ (a → a → a) → a → a → a → Boolean
 associative op a b c =
