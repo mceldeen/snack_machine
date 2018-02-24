@@ -15,7 +15,7 @@ main =
     suite "CanMakeChange USDWallet USD" do
       test "allocates bills from smallest to largest"
         let
-          result = makeChange wallet (cents .~ 3466 $ zero)
+          result = makeChange wallet (zero # cents .~ 3466)
 
           wallet = zero # oneCentCount      .~ 26
                         # tenCentCount      .~ 5
