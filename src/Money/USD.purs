@@ -185,16 +185,16 @@ instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
                 → Lens' USDWallet Int
                 → {change ∷ USDWallet, amountInCents ∷ Int}
                 → Either USDWallet {change ∷ USDWallet, amountInCents ∷ Int}
-            makeChangeForDenomination denominationInCents unitLens {change, amountInCents} =
+            makeChangeForDenomination denominationInCents denominationLens {change, amountInCents} =
                 let
                     maxUnitsToConsume = amountInCents / denominationInCents
-                    unitsToConsume = min maxUnitsToConsume (bag ^. unitLens)
+                    unitsToConsume = min maxUnitsToConsume (bag ^. denominationLens)
                     remainder = amountInCents - (unitsToConsume * denominationInCents)
                 in
                     if remainder == 0 then
-                        Left $ set unitLens unitsToConsume change
+                        Left $ set denominationLens unitsToConsume change
                     else
                         Right $
-                            { change: (unitLens .~ unitsToConsume) change
+                            { change: (denominationLens .~ unitsToConsume) change
                             , amountInCents: remainder
                             }
