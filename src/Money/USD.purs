@@ -2,7 +2,6 @@ module Money.USD
     ( USD
     , cents
     , USDWallet
-    , usdWallet
     , oneCentCount
     , tenCentCount
     , quarterCount

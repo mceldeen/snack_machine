@@ -5,7 +5,7 @@ import Prelude
 import Data.Either (Either(..))
 import Data.Lens ((.~), (^.))
 import Money.CanMakeChange (makeChange)
-import Money.USD (cents, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount, usdWallet)
+import Money.USD (cents, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
 import Test.Unit (TestSuite, failure, suite, test)
 import Test.Unit.Assert as Assert
 
@@ -14,8 +14,6 @@ main =
   suite "Money.CanMakeChange" do 
     suite "CanMakeChange USDWallet USD" do
       test "allocates bills from smallest to largest" do
-        let inventory = usdWallet 26 5 4 3 2 1
-        let result = makeChange inventory (cents .~ 3466 $ zero)
         case result of
           Left err → failure $ "unexpected error " <> show err
           Right change → do
@@ -25,3 +23,12 @@ main =
             Assert.equal 3  (change ^. oneDollarCount)
             Assert.equal 2  (change ^. fiveDollarCount)
             Assert.equal 1  (change ^. twentyDollarCount)
+        where
+          result = makeChange wallet (cents .~ 3466 $ zero)
+
+          wallet = zero # oneCentCount      .~ 26
+                        # tenCentCount      .~ 5
+                        # quarterCount      .~ 4
+                        # oneDollarCount    .~ 3
+                        # fiveDollarCount   .~ 2
+                        # twentyDollarCount .~ 1
