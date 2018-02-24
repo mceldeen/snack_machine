@@ -23,9 +23,9 @@ main =
     suite "CanMakeChange USDWallet USD" do
       test "allocates bills from smallest to largest"
         let
-          result = makeChange wallet (zero # cents .~ 3466)
+          result = makeChange moneySet (zero # cents .~ 3466)
 
-          wallet = zero # oneCentCount      .~ 26
+          moneySet = zero # oneCentCount      .~ 26
                         # tenCentCount      .~ 5
                         # quarterCount      .~ 4
                         # oneDollarCount    .~ 3
@@ -44,8 +44,8 @@ main =
 
       test "fails when it cannot make exact change"
         let
-          result = makeChange wallet (zero # cents .~ 1000)
-          wallet = zero # twentyDollarCount .~ 1
+          result = makeChange moneySet (zero # cents .~ 1000)
+          moneySet = zero # twentyDollarCount .~ 1
         in do
           case result of
             Left err → Assert.equal CannotMakeChange err

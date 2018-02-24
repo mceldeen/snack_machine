@@ -12,6 +12,8 @@ instance makeChangeErrorShow ∷ Show MakeChangeError where
 
 derive instance eqChangeErrorShow ∷ Eq MakeChangeError
 
-class (Ring bag, Ring amount) ⇐ CanMakeChange bag amount where
-    -- | Figures out how much to take out of a bag to equal the amount 
-    makeChange ∷ bag → amount → Either MakeChangeError bag
+-- | link between physical monetary value (wallet) and hypothetical monetary value (amount).
+class (Ring moneySet, Ring amount) ⇐ CanMakeChange moneySet amount where
+    -- | figures out how to allocate value from the moneySet that is equivalent to the amount.
+    -- | returns MakeChangeError if it can't allocate the exact amount from the moneySet.
+    makeChange ∷ moneySet → amount → Either MakeChangeError moneySet
