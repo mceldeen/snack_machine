@@ -99,56 +99,13 @@ oneCentCount =
 derive instance eqUSDWallet ∷ Eq USDWallet
 
 instance semiringUSDWallet ∷ Semiring USDWallet where
-    add (USDWallet a) (USDWallet b) =
-        USDWallet
-            { oneCentCount: a.oneCentCount + b.oneCentCount
-            , tenCentCount: a.tenCentCount + b.tenCentCount
-            , quarterCount: a.quarterCount + b.quarterCount
-            , oneDollarCount: a.oneDollarCount + b.oneDollarCount
-            , fiveDollarCount: a.fiveDollarCount + b.fiveDollarCount
-            , twentyDollarCount: a.twentyDollarCount + b.twentyDollarCount
-            }
-
-    zero =
-        USDWallet
-            { oneCentCount: zero
-            , tenCentCount: zero
-            , quarterCount: zero
-            , oneDollarCount: zero
-            , fiveDollarCount: zero
-            , twentyDollarCount: zero
-            }
-
-    mul (USDWallet a) (USDWallet b) =
-        USDWallet
-            { oneCentCount: a.oneCentCount * b.oneCentCount
-            , tenCentCount: a.tenCentCount * b.tenCentCount
-            , quarterCount: a.quarterCount * b.quarterCount
-            , oneDollarCount: a.oneDollarCount * b.oneDollarCount
-            , fiveDollarCount: a.fiveDollarCount * b.fiveDollarCount
-            , twentyDollarCount: a.twentyDollarCount * b.twentyDollarCount
-            }
-
-    one =
-        USDWallet
-            { oneCentCount: one
-            , tenCentCount: one
-            , quarterCount: one
-            , oneDollarCount: one
-            , fiveDollarCount: one
-            , twentyDollarCount: one
-            }
+    add  = mapOp (+)
+    zero = usdWallet 0 0 0 0 0 0
+    mul  = mapOp (*)
+    one  = usdWallet 1 1 1 1 1 1
 
 instance ringUSDWallet ∷ Ring USDWallet where
-    sub (USDWallet a) (USDWallet b) =
-        USDWallet
-            { oneCentCount: a.oneCentCount - b.oneCentCount
-            , tenCentCount: a.tenCentCount - b.tenCentCount
-            , quarterCount: a.quarterCount - b.quarterCount
-            , oneDollarCount: a.oneDollarCount - b.oneDollarCount
-            , fiveDollarCount: a.fiveDollarCount - b.fiveDollarCount
-            , twentyDollarCount: a.twentyDollarCount - b.twentyDollarCount
-            }
+    sub = mapOp (-)
 
 instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
     arbitrary =
@@ -159,3 +116,14 @@ instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
             <*> chooseInt 0 100
             <*> chooseInt 0 100
             <*> chooseInt 0 100
+
+mapOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
+mapOp op (USDWallet a) (USDWallet b) =
+    USDWallet
+        { oneCentCount: a.oneCentCount `op` b.oneCentCount
+        , tenCentCount: a.tenCentCount `op` b.tenCentCount
+        , quarterCount: a.quarterCount `op` b.quarterCount
+        , oneDollarCount: a.oneDollarCount `op` b.oneDollarCount
+        , fiveDollarCount: a.fiveDollarCount `op` b.fiveDollarCount
+        , twentyDollarCount: a.twentyDollarCount `op` b.twentyDollarCount
+        }
