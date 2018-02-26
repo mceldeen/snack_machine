@@ -10,7 +10,7 @@ import Data.Ord (min, (<))
 import Data.Ring (class Ring, zero, (*), (-))
 import Data.Show (class Show)
 import Money.USD (USD, cents)
-import Money.USDWallet (USDWallet, fiveDollarCount, oneCentCount, oneDollarCount, quarterCount, tenCentCount, twentyDollarCount)
+import Money.USDWallet (USDWallet, fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
 import Prelude (const, ($))
 
 data MakeChangeError = CannotMakeChange
@@ -42,12 +42,12 @@ instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
 
             result =
                 Right { change: (zero ∷ USDWallet), amountInCents: (amount ^. cents) }
-                    >>= makeChangeForDenomination 2000 twentyDollarCount
-                    >>= makeChangeForDenomination 500 fiveDollarCount
-                    >>= makeChangeForDenomination 100 oneDollarCount
-                    >>= makeChangeForDenomination 25 quarterCount
-                    >>= makeChangeForDenomination 10 tenCentCount
-                    >>= makeChangeForDenomination 1 oneCentCount
+                    >>= makeChangeForDenomination 2000 twentyDollarBills
+                    >>= makeChangeForDenomination 500 fiveDollarBills
+                    >>= makeChangeForDenomination 100 oneDollarBills
+                    >>= makeChangeForDenomination 25 quarters
+                    >>= makeChangeForDenomination 10 dimes
+                    >>= makeChangeForDenomination 1 pennies
                     <#> const CannotMakeChange
 
             makeChangeForDenomination

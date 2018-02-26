@@ -1,11 +1,11 @@
 module Money.USDWallet
     ( USDWallet
-    , oneCentCount
-    , tenCentCount
-    , quarterCount
-    , oneDollarCount
-    , fiveDollarCount
-    , twentyDollarCount
+    , pennies
+    , dimes
+    , quarters
+    , oneDollarBills
+    , fiveDollarBills
+    , twentyDollarBills
     ) where
 
 import Control.Applicative ((<*>))
@@ -21,12 +21,12 @@ import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 newtype USDWallet =
     USDWallet
-        { oneCentCount ∷ Int
-        , tenCentCount ∷ Int
-        , quarterCount ∷ Int
-        , oneDollarCount ∷ Int
-        , fiveDollarCount ∷ Int
-        , twentyDollarCount ∷ Int
+        { pennies ∷ Int
+        , dimes ∷ Int
+        , quarters ∷ Int
+        , oneDollarBills ∷ Int
+        , fiveDollarBills ∷ Int
+        , twentyDollarBills ∷ Int
         }
 
 derive instance eqUSDWallet ∷ Eq USDWallet
@@ -55,57 +55,57 @@ instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
 liftOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
 liftOp op (USDWallet a) (USDWallet b) =
     USDWallet
-        { oneCentCount: a.oneCentCount `op` b.oneCentCount
-        , tenCentCount: a.tenCentCount `op` b.tenCentCount
-        , quarterCount: a.quarterCount `op` b.quarterCount
-        , oneDollarCount: a.oneDollarCount `op` b.oneDollarCount
-        , fiveDollarCount: a.fiveDollarCount `op` b.fiveDollarCount
-        , twentyDollarCount: a.twentyDollarCount `op` b.twentyDollarCount
+        { pennies: a.pennies `op` b.pennies
+        , dimes: a.dimes `op` b.dimes
+        , quarters: a.quarters `op` b.quarters
+        , oneDollarBills: a.oneDollarBills `op` b.oneDollarBills
+        , fiveDollarBills: a.fiveDollarBills `op` b.fiveDollarBills
+        , twentyDollarBills: a.twentyDollarBills `op` b.twentyDollarBills
         }
 
 usdWallet ∷ Int → Int → Int → Int → Int → Int → USDWallet
 usdWallet pennies dimes quarters oneDollarBills fiveDollarBills twentyDollarBills =
     USDWallet
-        { oneCentCount: pennies
-        , tenCentCount: dimes
-        , quarterCount: quarters
-        , oneDollarCount: oneDollarBills
-        , fiveDollarCount: fiveDollarBills
-        , twentyDollarCount: twentyDollarBills
+        { pennies: pennies
+        , dimes: dimes
+        , quarters: quarters
+        , oneDollarBills: oneDollarBills
+        , fiveDollarBills: fiveDollarBills
+        , twentyDollarBills: twentyDollarBills
         }
 
-twentyDollarCount :: Lens' USDWallet Int
-twentyDollarCount =
+twentyDollarBills :: Lens' USDWallet Int
+twentyDollarBills =
     lens
-        (\(USDWallet bag) → bag.twentyDollarCount)
-        (\(USDWallet bag) c → USDWallet $ bag { twentyDollarCount = c })
+        (\(USDWallet bag) → bag.twentyDollarBills)
+        (\(USDWallet bag) c → USDWallet $ bag { twentyDollarBills = c })
 
-fiveDollarCount :: Lens' USDWallet Int
-fiveDollarCount =
+fiveDollarBills :: Lens' USDWallet Int
+fiveDollarBills =
     lens
-        (\(USDWallet bag) → bag.fiveDollarCount)
-        (\(USDWallet bag) c → USDWallet $ bag { fiveDollarCount = c })
+        (\(USDWallet bag) → bag.fiveDollarBills)
+        (\(USDWallet bag) c → USDWallet $ bag { fiveDollarBills = c })
 
-oneDollarCount :: Lens' USDWallet Int
-oneDollarCount =
+oneDollarBills :: Lens' USDWallet Int
+oneDollarBills =
     lens
-        (\(USDWallet bag) → bag.oneDollarCount)
-        (\(USDWallet bag) c → USDWallet $ bag { oneDollarCount = c })
+        (\(USDWallet bag) → bag.oneDollarBills)
+        (\(USDWallet bag) c → USDWallet $ bag { oneDollarBills = c })
 
-quarterCount :: Lens' USDWallet Int
-quarterCount =
+quarters :: Lens' USDWallet Int
+quarters =
     lens
-        (\(USDWallet bag) → bag.quarterCount)
-        (\(USDWallet bag) c → USDWallet $ bag { quarterCount = c })
+        (\(USDWallet bag) → bag.quarters)
+        (\(USDWallet bag) c → USDWallet $ bag { quarters = c })
 
-tenCentCount :: Lens' USDWallet Int
-tenCentCount =
+dimes :: Lens' USDWallet Int
+dimes =
     lens
-        (\(USDWallet bag) → bag.tenCentCount)
-        (\(USDWallet bag) c → USDWallet $ bag { tenCentCount = c })
+        (\(USDWallet bag) → bag.dimes)
+        (\(USDWallet bag) c → USDWallet $ bag { dimes = c })
 
-oneCentCount :: Lens' USDWallet Int
-oneCentCount =
+pennies :: Lens' USDWallet Int
+pennies =
     lens
-        (\(USDWallet bag) → bag.oneCentCount)
-        (\(USDWallet bag) c → USDWallet $ bag { oneCentCount = c })
+        (\(USDWallet bag) → bag.pennies)
+        (\(USDWallet bag) c → USDWallet $ bag { pennies = c })
