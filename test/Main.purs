@@ -13,6 +13,7 @@ import Test.Unit.Output.Fancy as Fancy
 import Test.Money.CoinSet as Test.Money.CoinSet
 import Test.Money.USD as Test.Money.USD
 import Test.Money.USDSet as Test.Money.USDSet
+import Test.SnackMachine as Test.SnackMachine
 
 main ∷ ∀ eff. Eff
   ( console ∷ CONSOLE
@@ -25,3 +26,4 @@ main = run $ runTestWith Fancy.runTest do
   Test.Money.CoinSet.main
   Test.Money.USD.main
   Test.Money.USDSet.main
+  Test.SnackMachine.main
