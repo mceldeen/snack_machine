@@ -1,4 +1,9 @@
-module Money.CoinSet where
+module Money.CoinSet
+    ( MakeChangeError
+    , class CoinSet
+    , makeChange
+    , isSingleCoin
+    ) where
 
 import CoinConversion (class CoinConversion, convertToSmallestCoin)
 import Control.Monad ((>>=))
@@ -11,7 +16,7 @@ import Data.Ord (min, (<))
 import Data.Ring (class Ring, zero, (*), (-), (+))
 import Data.Show (class Show)
 import Money.USDSet (USDSet, fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
-import Prelude (const, ($))
+import Prelude (const, ($), (#))
 
 data MakeChangeError = CannotMakeChange
 
@@ -54,23 +59,20 @@ instance coinSetUSDSetWithUSD ∷ CoinSet USDSet where
         == 1
 
     makeChange moneySet amount =
-          swapRightAndLeft result
+          Right { change: (zero ∷ USDSet), amountInCents: amountInPennies }
+            >>= makeChangeForDenomination 2000 twentyDollarBills
+            >>= makeChangeForDenomination 500 fiveDollarBills
+            >>= makeChangeForDenomination 100 oneDollarBills
+            >>= makeChangeForDenomination 25 quarters
+            >>= makeChangeForDenomination 10 dimes
+            >>= makeChangeForDenomination 1 pennies
+            <#> const CannotMakeChange
+            # flipEither
         where
-            swapRightAndLeft =
-                either Right Left
+            flipEither = either Right Left
 
             amountInPennies = 
                 convertToSmallestCoin amount ^. pennies
-
-            result =
-                Right { change: (zero ∷ USDSet), amountInCents: amountInPennies }
-                    >>= makeChangeForDenomination 2000 twentyDollarBills
-                    >>= makeChangeForDenomination 500 fiveDollarBills
-                    >>= makeChangeForDenomination 100 oneDollarBills
-                    >>= makeChangeForDenomination 25 quarters
-                    >>= makeChangeForDenomination 10 dimes
-                    >>= makeChangeForDenomination 1 pennies
-                    <#> const CannotMakeChange
 
             makeChangeForDenomination
                 ∷ Int
@@ -90,4 +92,3 @@ instance coinSetUSDSetWithUSD ∷ CoinSet USDSet where
                             { change: denominationLens .~ unitsToConsume $ change
                             , amountInCents: remainder
                             }
-
