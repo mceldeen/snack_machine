@@ -16,4 +16,3 @@ instance coinConversionIntInt ∷ CoinConversion Int Int where
 instance coinConversionUSDUSDSet ∷ CoinConversion USD USDSet where
     convertToCoinSet usd = 
         pennies .~ (usd ^. cents) $ zero
-
