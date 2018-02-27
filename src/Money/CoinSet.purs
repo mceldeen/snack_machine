@@ -1,5 +1,6 @@
-module Money.CanMakeChange where
+module Money.CoinSet where
 
+import CoinConversion (class CoinConversion, convertToCoinSet)
 import Control.Monad ((>>=))
 import Data.Either (Either(..), either)
 import Data.Eq (class Eq, (==))
@@ -7,10 +8,9 @@ import Data.EuclideanRing ((/))
 import Data.Functor ((<#>))
 import Data.Lens (Lens', (.~), (^.))
 import Data.Ord (min, (<))
-import Data.Ring (class Ring, zero, (*), (-))
+import Data.Ring (class Ring, zero, (*), (-), (+))
 import Data.Show (class Show)
-import Money.USD (USD, cents)
-import Money.USDWallet (USDWallet, fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
+import Money.USDSet (USDSet, fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
 import Prelude (const, ($))
 
 data MakeChangeError = CannotMakeChange
@@ -21,27 +21,49 @@ instance makeChangeErrorShow ∷ Show MakeChangeError where
 derive instance eqChangeErrorShow ∷ Eq MakeChangeError
 
 -- | link between physical monetary value (wallet) and hypothetical monetary value (amount).
-class (Ring moneySet, Ring amount) ⇐ CanMakeChange moneySet amount where
+class (Ring moneySet) ⇐ CoinSet moneySet where
     -- | figures out how to allocate value from the moneySet that is equivalent to the amount.
     -- | returns MakeChangeError if it can't allocate the exact amount from the moneySet.
-    makeChange ∷ moneySet → amount → Either MakeChangeError moneySet
+    makeChange ∷ 
+        ∀ amount
+        . CoinConversion amount moneySet
+        ⇒ moneySet
+        → amount
+        → Either MakeChangeError moneySet
 
-instance canMakeChangeInt ∷ CanMakeChange Int Int where
-    makeChange moneySet amount =
-        if moneySet < amount then
+    isSingleCoin ∷ moneySet → Boolean
+
+instance coinSetInt ∷ CoinSet Int where
+    isSingleCoin = (==) 1
+
+    makeChange coinSet amount =
+        let amountInCoinSet = convertToCoinSet amount
+        in if coinSet < amountInCoinSet then
             Left CannotMakeChange
         else
-            Right amount
+            Right amountInCoinSet
 
-instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
+instance coinSetUSDSetWithUSD ∷ CoinSet USDSet where
+    isSingleCoin moneySet =
+          moneySet ^. pennies
+        + moneySet ^. dimes
+        + moneySet ^. quarters
+        + moneySet ^. oneDollarBills
+        + moneySet ^. fiveDollarBills
+        + moneySet ^. twentyDollarBills
+        == 1
+
     makeChange moneySet amount =
           swapRightAndLeft result
         where
             swapRightAndLeft =
                 either Right Left
 
+            amountInPennies = 
+                convertToCoinSet amount ^. pennies
+
             result =
-                Right { change: (zero ∷ USDWallet), amountInCents: (amount ^. cents) }
+                Right { change: (zero ∷ USDSet), amountInCents: amountInPennies }
                     >>= makeChangeForDenomination 2000 twentyDollarBills
                     >>= makeChangeForDenomination 500 fiveDollarBills
                     >>= makeChangeForDenomination 100 oneDollarBills
@@ -52,9 +74,9 @@ instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
 
             makeChangeForDenomination
                 ∷ Int
-                → Lens' USDWallet Int
-                → {change ∷ USDWallet, amountInCents ∷ Int}
-                → Either USDWallet {change ∷ USDWallet, amountInCents ∷ Int}
+                → Lens' USDSet Int
+                → {change ∷ USDSet, amountInCents ∷ Int}
+                → Either USDSet {change ∷ USDSet, amountInCents ∷ Int}
             makeChangeForDenomination denominationInCents denominationLens {change, amountInCents} =
                 let
                     maxUnitsToConsume = amountInCents / denominationInCents
@@ -68,3 +90,4 @@ instance canMakeChangeUSDWalletWithUSD ∷ CanMakeChange USDWallet USD where
                             { change: denominationLens .~ unitsToConsume $ change
                             , amountInCents: remainder
                             }
+

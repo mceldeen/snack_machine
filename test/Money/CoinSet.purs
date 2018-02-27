@@ -1,12 +1,12 @@
-module Test.Money.CanMakeChange where
+module Test.Money.CoinSet where
 
 import Prelude
 
 import Data.Either (Either(..))
 import Data.Lens ((.~), (^.))
-import Money.CanMakeChange (MakeChangeError(..), makeChange)
+import Money.CoinSet (MakeChangeError(..), makeChange)
 import Money.USD (cents)
-import Money.USDWallet
+import Money.USDSet
   ( fiveDollarBills
   , pennies
   , oneDollarBills
@@ -19,9 +19,9 @@ import Test.Unit.Assert as Assert
 
 main :: ∀ e. TestSuite e
 main =
-  suite "Money.CanMakeChange" do 
-    suite "CanMakeChange USDWallet USD" do
-      test "allocates bills from smallest to largest"
+  suite "Money.CoinSet" do 
+    suite "CoinSet USDSet" do
+      test "allocates coins from smallest to largest"
         let
           result = makeChange moneySet (zero # cents .~ 3466)
 

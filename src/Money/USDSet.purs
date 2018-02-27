@@ -1,5 +1,5 @@
-module Money.USDWallet
-    ( USDWallet
+module Money.USDSet
+    ( USDSet
     , pennies
     , dimes
     , quarters
@@ -19,8 +19,8 @@ import Data.Semiring (class Semiring)
 import Prelude (($))
 import Test.QuickCheck.Arbitrary (class Arbitrary)
 
-newtype USDWallet =
-    USDWallet
+newtype USDSet =
+    USDSet
         { pennies ∷ Int
         , dimes ∷ Int
         , quarters ∷ Int
@@ -29,22 +29,22 @@ newtype USDWallet =
         , twentyDollarBills ∷ Int
         }
 
-derive instance eqUSDWallet ∷ Eq USDWallet
+derive instance eqUSDSet ∷ Eq USDSet
 
-derive instance ordUSDWallet ∷ Ord USDWallet
+derive instance ordUSDSet ∷ Ord USDSet
 
-instance semiringUSDWallet ∷ Semiring USDWallet where
+instance semiringUSDSet ∷ Semiring USDSet where
     add  = liftOp (+)
-    zero = usdWallet 0 0 0 0 0 0
+    zero = usdSet 0 0 0 0 0 0
     mul  = liftOp (*)
-    one  = usdWallet 1 1 1 1 1 1
+    one  = usdSet 1 1 1 1 1 1
 
-instance ringUSDWallet ∷ Ring USDWallet where
+instance ringUSDSet ∷ Ring USDSet where
     sub = liftOp (-)
 
-instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
+instance arbitraryUSDSet ∷ Arbitrary USDSet where
     arbitrary =
-        usdWallet
+        usdSet
             <$> chooseInt 0 100
             <*> chooseInt 0 100
             <*> chooseInt 0 100
@@ -52,9 +52,9 @@ instance arbitraryUSDWallet ∷ Arbitrary USDWallet where
             <*> chooseInt 0 100
             <*> chooseInt 0 100
 
-liftOp ∷ (Int -> Int -> Int) -> USDWallet -> USDWallet -> USDWallet
-liftOp op (USDWallet a) (USDWallet b) =
-    USDWallet
+liftOp ∷ (Int -> Int -> Int) -> USDSet -> USDSet -> USDSet
+liftOp op (USDSet a) (USDSet b) =
+    USDSet
         { pennies: a.pennies `op` b.pennies
         , dimes: a.dimes `op` b.dimes
         , quarters: a.quarters `op` b.quarters
@@ -63,9 +63,9 @@ liftOp op (USDWallet a) (USDWallet b) =
         , twentyDollarBills: a.twentyDollarBills `op` b.twentyDollarBills
         }
 
-usdWallet ∷ Int → Int → Int → Int → Int → Int → USDWallet
-usdWallet pennies dimes quarters oneDollarBills fiveDollarBills twentyDollarBills =
-    USDWallet
+usdSet ∷ Int → Int → Int → Int → Int → Int → USDSet
+usdSet pennies dimes quarters oneDollarBills fiveDollarBills twentyDollarBills =
+    USDSet
         { pennies: pennies
         , dimes: dimes
         , quarters: quarters
@@ -74,38 +74,38 @@ usdWallet pennies dimes quarters oneDollarBills fiveDollarBills twentyDollarBill
         , twentyDollarBills: twentyDollarBills
         }
 
-twentyDollarBills :: Lens' USDWallet Int
+twentyDollarBills :: Lens' USDSet Int
 twentyDollarBills =
     lens
-        (\(USDWallet bag) → bag.twentyDollarBills)
-        (\(USDWallet bag) c → USDWallet $ bag { twentyDollarBills = c })
+        (\(USDSet bag) → bag.twentyDollarBills)
+        (\(USDSet bag) c → USDSet $ bag { twentyDollarBills = c })
 
-fiveDollarBills :: Lens' USDWallet Int
+fiveDollarBills :: Lens' USDSet Int
 fiveDollarBills =
     lens
-        (\(USDWallet bag) → bag.fiveDollarBills)
-        (\(USDWallet bag) c → USDWallet $ bag { fiveDollarBills = c })
+        (\(USDSet bag) → bag.fiveDollarBills)
+        (\(USDSet bag) c → USDSet $ bag { fiveDollarBills = c })
 
-oneDollarBills :: Lens' USDWallet Int
+oneDollarBills :: Lens' USDSet Int
 oneDollarBills =
     lens
-        (\(USDWallet bag) → bag.oneDollarBills)
-        (\(USDWallet bag) c → USDWallet $ bag { oneDollarBills = c })
+        (\(USDSet bag) → bag.oneDollarBills)
+        (\(USDSet bag) c → USDSet $ bag { oneDollarBills = c })
 
-quarters :: Lens' USDWallet Int
+quarters :: Lens' USDSet Int
 quarters =
     lens
-        (\(USDWallet bag) → bag.quarters)
-        (\(USDWallet bag) c → USDWallet $ bag { quarters = c })
+        (\(USDSet bag) → bag.quarters)
+        (\(USDSet bag) c → USDSet $ bag { quarters = c })
 
-dimes :: Lens' USDWallet Int
+dimes :: Lens' USDSet Int
 dimes =
     lens
-        (\(USDWallet bag) → bag.dimes)
-        (\(USDWallet bag) c → USDWallet $ bag { dimes = c })
+        (\(USDSet bag) → bag.dimes)
+        (\(USDSet bag) c → USDSet $ bag { dimes = c })
 
-pennies :: Lens' USDWallet Int
+pennies :: Lens' USDSet Int
 pennies =
     lens
-        (\(USDWallet bag) → bag.pennies)
-        (\(USDWallet bag) c → USDWallet $ bag { pennies = c })
+        (\(USDSet bag) → bag.pennies)
+        (\(USDSet bag) c → USDSet $ bag { pennies = c })

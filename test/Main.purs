@@ -10,9 +10,9 @@ import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (run, runTestWith)
 import Test.Unit.Output.Fancy as Fancy
 
-import Test.Money.CanMakeChange as Test.Money.CanMakeChange
+import Test.Money.CoinSet as Test.Money.CoinSet
 import Test.Money.USD as Test.Money.USD
-import Test.Money.USDWallet as Test.Money.USDWallet
+import Test.Money.USDSet as Test.Money.USDSet
 
 main ∷ ∀ eff. Eff
   ( console ∷ CONSOLE
@@ -22,6 +22,6 @@ main ∷ ∀ eff. Eff
   | eff
   ) Unit
 main = run $ runTestWith Fancy.runTest do
+  Test.Money.CoinSet.main
   Test.Money.USD.main
-  Test.Money.USDWallet.main
-  Test.Money.CanMakeChange.main
+  Test.Money.USDSet.main
