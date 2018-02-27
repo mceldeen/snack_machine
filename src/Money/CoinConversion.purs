@@ -8,11 +8,11 @@ import Prelude (($))
 
 class (Ring coinSet, Ring coin) ⇐ CoinConversion coin coinSet where
     -- | MUST BE IN TERMS OF THE SMALLEST DENOMINATION IN THE COINSET
-    convertToCoinSet ∷ coin → coinSet
+    convertToSmallestCoin ∷ coin → coinSet
 
 instance coinConversionIntInt ∷ CoinConversion Int Int where
-    convertToCoinSet coin = coin
+    convertToSmallestCoin coin = coin
 
 instance coinConversionUSDUSDSet ∷ CoinConversion USD USDSet where
-    convertToCoinSet usd = 
+    convertToSmallestCoin usd =
         pennies .~ (usd ^. cents) $ zero

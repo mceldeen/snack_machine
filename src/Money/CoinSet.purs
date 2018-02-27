@@ -1,6 +1,6 @@
 module Money.CoinSet where
 
-import CoinConversion (class CoinConversion, convertToCoinSet)
+import CoinConversion (class CoinConversion, convertToSmallestCoin)
 import Control.Monad ((>>=))
 import Data.Either (Either(..), either)
 import Data.Eq (class Eq, (==))
@@ -37,7 +37,7 @@ instance coinSetInt ∷ CoinSet Int where
     isSingleCoin = (==) 1
 
     makeChange coinSet amount =
-        let amountInCoinSet = convertToCoinSet amount
+        let amountInCoinSet = convertToSmallestCoin amount
         in if coinSet < amountInCoinSet then
             Left CannotMakeChange
         else
@@ -60,7 +60,7 @@ instance coinSetUSDSetWithUSD ∷ CoinSet USDSet where
                 either Right Left
 
             amountInPennies = 
-                convertToCoinSet amount ^. pennies
+                convertToSmallestCoin amount ^. pennies
 
             result =
                 Right { change: (zero ∷ USDSet), amountInCents: amountInPennies }
