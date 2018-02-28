@@ -1,7 +1,8 @@
 module CoinConversion where
 
+import Data.Foldable (sum)
 import Data.Lens ((.~), (^.))
-import Data.Ring (class Ring, zero, (+), (*))
+import Data.Ring (class Ring, zero, (*))
 import Money.USD (USD, cents)
 import Money.USDSet (USDSet, dimes, fiveDollarBills, oneDollarBills, pennies, quarters, twentyDollarBills)
 import Prelude (($), (#))
@@ -22,11 +23,13 @@ instance coinConversionUSDUSDSet ∷ CoinConversion USD USDSet where
 
     convertToValue coinSet =
         let
-            valueInPennies =
-                    (coinSet ^. pennies             )
-                +   (coinSet ^. dimes               ) * 10
-                +   (coinSet ^. quarters            ) * 25
-                +   (coinSet ^. oneDollarBills      ) * 100
-                +   (coinSet ^. fiveDollarBills     ) * 500
-                +   (coinSet ^. twentyDollarBills   ) * 2500
-        in zero # cents .~ valueInPennies
+            valueInCents =
+                sum [
+                    (coinSet ^. pennies             ) * 1,
+                    (coinSet ^. dimes               ) * 10,
+                    (coinSet ^. quarters            ) * 25,
+                    (coinSet ^. oneDollarBills      ) * 100,
+                    (coinSet ^. fiveDollarBills     ) * 500,
+                    (coinSet ^. twentyDollarBills   ) * 2000
+                ]
+        in zero # cents .~ valueInCents

@@ -38,7 +38,7 @@ main =
             result = makeChange moneySet (zero # cents .~ 1000)
             moneySet = zero # twentyDollarBills .~ 1
           in
-            expectFail result \err → Assert.equal CannotMakeChange err
+            expectFail result \err → Assert.equal (CannotMakeChange 1000) err
 
       suite "isSingleCoin" do
         test "returns true when there is only a single instance of a single denomination" do

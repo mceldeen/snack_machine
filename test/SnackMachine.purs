@@ -2,26 +2,63 @@ module Test.SnackMachine where
 
 import Prelude
 
-import SnackMachine (SnackMachine, SnackMachineError(..), coinsInTransaction, coinsInMachine, empty, insertMoney)
-import Test.ExpectationHelpers (expectFail, expectSucceed)
+import CoinConversion (class CoinConversion)
+import Control.Monad.Eff.Random (RANDOM)
+import Data.Either (Either(..), either, fromRight)
+import Data.Tuple (Tuple(..))
+import Money.CoinSet (class CoinSet)
+import Money.USD (USD)
+import Money.USDSet (USDSet)
+import Partial.Unsafe (unsafePartial)
+import SnackMachine (SnackMachine, coinsInMachine, coinsInTransaction, insertMoney, returnMoney, safeReturnMoney, snackMachine)
+import Test.QuickCheck (Result(..))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
+import Test.Unit.QuickCheck (quickCheck)
 
-testSnackMachine = empty ∷ SnackMachine Int Int
+testSnackMachine ∷ SnackMachine Int Int
+testSnackMachine =
+  unsafePartial $ fromRight (snackMachine 0 0)
 
-main ∷ ∀ e. TestSuite e
+snackMachineWithCoinsInTransaction ∷ SnackMachine Int Int
+snackMachineWithCoinsInTransaction =
+  insertMoney 2 testSnackMachine
+
+checkCanAlwaysReturnMoney :: ∀ c v. Show c ⇒ Show v ⇒ CoinSet c ⇒ CoinConversion v c ⇒ c → v → c → Result
+checkCanAlwaysReturnMoney inside transaction insertedMoney =
+  let
+    reportFailure e =
+      Failed $ show e <> " " <> show inside <> " " <> show transaction <> " " <> show insertedMoney
+  in
+    case insertMoney insertedMoney <$> snackMachine inside transaction of
+      Right sm →
+        either reportFailure (const Success) $ safeReturnMoney sm
+      Left _ →
+        Success
+
+main ∷ ∀ e. TestSuite ( random ∷ RANDOM | e)
 main =
   suite "SnackMachine" do
+    test "cannot ever get into a state where it cannot return the money" do
+      quickCheck $ (checkCanAlwaysReturnMoney ∷ USDSet → USD → USDSet → Result)
+
     suite "insertMoney" do
-      test "fails when you do not insert a single coin" do
-        expectFail (insertMoney testSnackMachine 2) \err →
-          Assert.equal CannotInsertMultipleCoinsAtOnce err
+      test "shows the value in the transaction" do
+        Assert.equal 1 (coinsInTransaction $ insertMoney 1 testSnackMachine)
 
-      suite "when you insert a single coin" do
-        test "shows the value in the transaction" do
-          expectSucceed (insertMoney testSnackMachine 1) \snackMachine →
-            Assert.equal 1 (coinsInTransaction snackMachine)
+      test "shows the value inside the machine" do
+        Assert.equal 1 (coinsInMachine $ insertMoney 1 testSnackMachine)
 
-        test "shows the value inside the machine" do
-          expectSucceed (insertMoney testSnackMachine 1) \snackMachine →
-            Assert.equal 1 (coinsInMachine snackMachine)
+    suite "returnCoins" do
+      test "returns proper change" do
+        case (returnMoney snackMachineWithCoinsInTransaction) of
+          Tuple _ change → do
+            Assert.equal 2 change
+      test "removes the coins from the transaction" do
+        case (returnMoney snackMachineWithCoinsInTransaction) of
+          Tuple machine _ → do
+            Assert.equal zero (coinsInTransaction machine)
+      test "removes the coins from the inside" do
+        case (returnMoney snackMachineWithCoinsInTransaction) of
+          Tuple machine _ → do
+            Assert.equal zero (coinsInMachine machine)

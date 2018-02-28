@@ -1,5 +1,5 @@
 module Money.CoinSet
-    ( MakeChangeError
+    ( MakeChangeError(..)
     , class CoinSet
     , makeChange
     , isSingleCoin
@@ -12,16 +12,18 @@ import Data.Eq (class Eq, (==))
 import Data.EuclideanRing ((/))
 import Data.Functor ((<#>))
 import Data.Lens (Lens', (.~), (^.))
+import Data.Monoid ((<>))
 import Data.Ord (min, (<))
 import Data.Ring (class Ring, zero, (*), (-), (+))
-import Data.Show (class Show)
+import Data.Show (class Show, show)
 import Money.USDSet (USDSet, fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
-import Prelude (const, ($), (#))
+import Prelude ((#), ($))
 
-data MakeChangeError = CannotMakeChange
+
+data MakeChangeError = CannotMakeChange Int
 
 instance makeChangeErrorShow ∷ Show MakeChangeError where
-    show CannotMakeChange = "CannotMakeChange"
+    show (CannotMakeChange remainder) = "CannotMakeChange " <> show remainder
 
 derive instance eqChangeErrorShow ∷ Eq MakeChangeError
 
@@ -44,7 +46,7 @@ instance coinSetInt ∷ CoinSet Int where
     makeChange coinSet amount =
         let amountInCoinSet = convertToSmallestCoin amount
         in if coinSet < amountInCoinSet then
-            Left CannotMakeChange
+            Left $ CannotMakeChange (amountInCoinSet - coinSet)
         else
             Right amountInCoinSet
 
@@ -66,7 +68,7 @@ instance coinSetUSDSetWithUSD ∷ CoinSet USDSet where
             >>= makeChangeForDenomination 25 quarters
             >>= makeChangeForDenomination 10 dimes
             >>= makeChangeForDenomination 1 pennies
-            <#> const CannotMakeChange
+            <#> (\{amountInCents} → CannotMakeChange amountInCents)
             # flipEither
         where
             flipEither = either Right Left

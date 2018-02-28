@@ -11,11 +11,14 @@ module Money.USDSet
 import Control.Applicative ((<*>))
 import Control.Monad.Gen.Class (chooseInt)
 import Data.Eq (class Eq)
+import Data.Foldable (intercalate)
 import Data.Functor ((<$>))
 import Data.Lens (Lens', lens)
+import Data.Monoid ((<>))
 import Data.Ord (class Ord)
 import Data.Ring (class Ring, (*), (+), (-))
 import Data.Semiring (class Semiring)
+import Data.Show (class Show, show)
 import Prelude (($))
 import Test.QuickCheck.Arbitrary (class Arbitrary)
 
@@ -32,6 +35,20 @@ newtype USDSet =
 derive instance eqUSDSet ∷ Eq USDSet
 
 derive instance ordUSDSet ∷ Ord USDSet
+
+instance showUSDSet ∷ Show USDSet where
+    show (USDSet {pennies, dimes, quarters, oneDollarBills, fiveDollarBills, twentyDollarBills}) = 
+        "{ " <> (intercalate ", " denomStrings) <> " }"
+        where
+            denomStrings =
+                [
+                    "pennies:" <> show pennies,
+                    "dimes:" <> show dimes,
+                    "quarters:" <> show quarters,
+                    "oneDollarBills:" <> show oneDollarBills,
+                    "fiveDollarBills:" <> show fiveDollarBills,
+                    "twentyDollarBills:" <> show twentyDollarBills
+                ]
 
 instance semiringUSDSet ∷ Semiring USDSet where
     add  = liftOp (+)

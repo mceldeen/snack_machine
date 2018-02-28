@@ -7,9 +7,11 @@ import Control.Monad.Gen.Class (chooseInt)
 import Data.Eq (class Eq)
 import Data.Functor ((<$>))
 import Data.Lens (Lens', lens)
+import Data.Monoid ((<>))
 import Data.Ord (class Ord)
 import Data.Ring (class Ring, (-), (*), (+))
 import Data.Semiring (class Semiring, zero, one)
+import Data.Show (class Show, show)
 import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 newtype USD = USD Int
@@ -23,6 +25,11 @@ cents =
 derive instance eqUSD ∷ Eq USD
 
 derive instance ordUSD ∷ Ord USD
+
+instance showUSD ∷ Show USD where
+    show (USD cents) =
+        show cents <> "¢"
+
 
 instance semiringUSD ∷ Semiring USD where
     add (USD a) (USD b) = USD (a + b)
