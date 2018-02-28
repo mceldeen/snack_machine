@@ -3,9 +3,9 @@ module CoinConversion where
 import Data.Foldable (sum)
 import Data.Lens ((.~), (^.))
 import Data.Ring (class Ring, zero, (*))
-import Money.USD (USD, cents)
+import Money.USD (USD, cents, fromCents)
 import Money.USDSet (USDSet, dimes, fiveDollarBills, oneDollarBills, pennies, quarters, twentyDollarBills)
-import Prelude (($), (#))
+import Prelude (($))
 
 class (Ring coinSet, Ring coin) ⇐ CoinConversion coin coinSet where
     -- | MUST BE IN TERMS OF THE SMALLEST DENOMINATION IN THE COINSET
@@ -32,4 +32,4 @@ instance coinConversionUSDUSDSet ∷ CoinConversion USD USDSet where
                     (coinSet ^. fiveDollarBills     ) * 500,
                     (coinSet ^. twentyDollarBills   ) * 2000
                 ]
-        in zero # cents .~ valueInCents
+        in fromCents valueInCents

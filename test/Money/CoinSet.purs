@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Lens ((.~), (^.))
 import Money.CoinSet (MakeChangeError(..), isSingleCoin, makeChange)
-import Money.USD (cents)
+import Money.USD (fromCents)
 import Money.USDSet (fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
 import Test.ExpectationHelpers (expectFail, expectSucceed)
 import Test.Unit (TestSuite, suite, test)
@@ -17,7 +17,7 @@ main =
       suite "makeChange" do
         test "allocates coins from smallest to largest"
           let
-            result = makeChange moneySet (zero # cents .~ 3466)
+            result = makeChange moneySet (fromCents 3466)
             moneySet = zero # pennies           .~ 26
                             # dimes             .~ 5
                             # quarters          .~ 4
@@ -35,7 +35,7 @@ main =
 
         test "fails when it cannot make exact change"
           let
-            result = makeChange moneySet (zero # cents .~ 1000)
+            result = makeChange moneySet (fromCents 1000)
             moneySet = zero # twentyDollarBills .~ 1
           in
             expectFail result \err → Assert.equal (CannotMakeChange 1000) err

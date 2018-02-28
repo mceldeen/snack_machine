@@ -39,8 +39,11 @@ checkCanAlwaysReturnMoney inside transaction insertedMoney =
 main ∷ ∀ e. TestSuite ( random ∷ RANDOM | e)
 main =
   suite "SnackMachine" do
-    test "cannot ever get into a state where it cannot return the money" do
+    test "cannot ever get into a state where it cannot return the money with USD" do
       quickCheck $ (checkCanAlwaysReturnMoney ∷ USDSet → USD → USDSet → Result)
+
+    test "cannot ever get into a state where it cannot return the money with Int" do
+      quickCheck $ (checkCanAlwaysReturnMoney ∷ Int → Int → Int → Result)
 
     suite "insertMoney" do
       test "shows the value in the transaction" do
