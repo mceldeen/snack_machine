@@ -9,7 +9,7 @@ npm install
 ```
 
 ## Run
-There's nothing interested to run yet.
+There's nothing interesting to run yet.
 ```sh
 pulp run
 ```
