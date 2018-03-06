@@ -27,7 +27,6 @@ instance makeChangeErrorShow ∷ Show MakeChangeError where
 
 derive instance eqChangeErrorShow ∷ Eq MakeChangeError
 
--- | link between physical monetary value (wallet) and hypothetical monetary value (amount).
 class (Ring moneySet) ⇐ CoinSet moneySet where
     -- | figures out how to allocate value from the moneySet that is equivalent to the amount.
     -- | returns MakeChangeError if it can't allocate the exact amount from the moneySet.

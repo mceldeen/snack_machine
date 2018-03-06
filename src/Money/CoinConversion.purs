@@ -7,8 +7,9 @@ import Money.USD (USD, cents, fromCents)
 import Money.USDSet (USDSet, dimes, fiveDollarBills, oneDollarBills, pennies, quarters, twentyDollarBills)
 import Prelude (($))
 
+
+-- | link between physical monetary value (wallet) and hypothetical monetary value (amount).
 class (Ring coinSet, Ring coin) ⇐ CoinConversion coin coinSet where
-    -- | MUST BE IN TERMS OF THE SMALLEST DENOMINATION IN THE COINSET
     convertToSmallestCoin ∷ coin → coinSet
 
     convertToValue ∷ coinSet → coin
