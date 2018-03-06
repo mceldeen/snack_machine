@@ -4,7 +4,8 @@
   "description": "implementing the snack machine in the pluralsight ddd in practice course",
   "main": "bin/server.js",
   "scripts": {
-    "test": "pulp test"
+    "test": "pulp test",
+    "postinstall": "bower install"
   },
   "repository": {
     "type": "git",
