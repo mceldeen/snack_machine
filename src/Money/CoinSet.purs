@@ -27,11 +27,9 @@ instance makeChangeErrorShow ∷ Show MakeChangeError where
 
 derive instance eqChangeErrorShow ∷ Eq MakeChangeError
 
+
+-- | Law: `convertToValue <$> makeChange (a + b) c == Right c` where `convertToValue b >= c`
 class (Ring moneySet) ⇐ CoinSet moneySet where
-    -- | figures out how to allocate value from the moneySet that is equivalent to the amount.
-    -- | returns MakeChangeError if it can't allocate the exact amount from the moneySet.
-    -- | Must satisfy the following:
-    -- |   `convertToValue <$> makeChange (a + b) c == Right c` where `convertToValue b >= c`
     makeChange ∷ 
         ∀ amount
         . CoinConversion amount moneySet
