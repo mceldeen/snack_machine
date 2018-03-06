@@ -2,19 +2,34 @@ module Test.Money.CoinSet where
 
 import Prelude
 
+import CoinConversion (convertToValue)
+import Control.Monad.Eff.Random (RANDOM)
+import Data.Either (Either(..))
 import Data.Lens ((.~), (^.))
-import Money.CoinSet (MakeChangeError(..), isSingleCoin, makeChange)
-import Money.USD (fromCents)
-import Money.USDSet (fiveDollarBills, pennies, oneDollarBills, quarters, dimes, twentyDollarBills)
+import Money.CoinSet (MakeChangeError(CannotMakeChange), isSingleCoin, makeChange)
+import Money.USD (cents, fromCents)
+import Money.USDSet (USDSet, dimes, fiveDollarBills, oneDollarBills, pennies, quarters, twentyDollarBills)
 import Test.ExpectationHelpers (expectFail, expectSucceed)
+import Test.QuickCheck (Result(..))
+import Test.QuickCheck.Gen (Gen, chooseInt)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
+import Test.Unit.QuickCheck (quickCheck)
 
-main :: ∀ e. TestSuite e
+canMakeChangeUSDSet ∷ USDSet → USDSet → Gen Result
+canMakeChangeUSDSet a b = do
+  c ← fromCents <$> chooseInt 1 (convertToValue b ^. cents)
+  case convertToValue <$> makeChange (a + b) c == Right c of
+    true → pure Success
+    false → pure $ Failed $ "a = " <> show a <> ", b = " <> show b <> ", c = " <> show c
+
+main ∷ ∀ e. TestSuite ( random ∷ RANDOM | e)
 main =
   suite "Money.CoinSet" do 
     suite "CoinSet USDSet" do
       suite "makeChange" do
+        test "can always make change under the right circumstances" $ quickCheck canMakeChangeUSDSet
+
         test "allocates coins from smallest to largest"
           let
             result = makeChange moneySet (fromCents 3466)
