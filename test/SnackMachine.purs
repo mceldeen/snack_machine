@@ -10,7 +10,7 @@ import Money.CoinSet (class CoinSet)
 import Money.USD (USD)
 import Money.USDSet (USDSet)
 import Partial.Unsafe (unsafePartial)
-import SnackMachine (SnackMachine, coinsInMachine, coinsInTransaction, insertMoney, returnMoney, safeReturnMoney, snackMachine)
+import SnackMachine
 import Test.QuickCheck (Result(..))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
@@ -65,3 +65,22 @@ main =
         case (returnMoney snackMachineWithCoinsInTransaction) of
           Tuple machine _ → do
             Assert.equal zero (coinsInMachine machine)
+
+    suite "stockSnack" do
+      test "shows the snack as in stock"
+        let
+          snack =
+            Snack {name: "candy bar", unitPrice: 150}
+          machineWithSnack =
+            stockSnack snack 10 testSnackMachine
+        in do
+          Assert.equal (listSnacks machineWithSnack) [snack]
+
+      test "adds to existing snacks"
+          let
+            snack =
+              Snack {name: "candy bar", unitPrice: 150}
+            machineWithSnack =
+              stockSnack snack 10 $ stockSnack snack 10 testSnackMachine
+          in do
+            Assert.equal (listSnacks machineWithSnack) [snack]

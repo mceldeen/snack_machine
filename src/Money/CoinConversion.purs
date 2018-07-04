@@ -9,10 +9,10 @@ import Prelude (($))
 
 
 -- | link between physical monetary value (wallet) and hypothetical monetary value (amount).
-class (Ring coinSet, Ring coin) ⇐ CoinConversion coin coinSet where
-    convertToSmallestCoin ∷ coin → coinSet
+class (Ring coinSet, Ring value) ⇐ CoinConversion value coinSet where
+    convertToSmallestCoin ∷ value → coinSet
 
-    convertToValue ∷ coinSet → coin
+    convertToValue ∷ coinSet → value
 
 instance coinConversionIntInt ∷ CoinConversion Int Int where
     convertToSmallestCoin coin = coin
