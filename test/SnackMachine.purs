@@ -77,10 +77,10 @@ main =
           Assert.equal (listSnacks machineWithSnack) [snack]
 
       test "adds to existing snacks"
-          let
-            snack =
-              Snack {name: "candy bar", unitPrice: 150}
-            machineWithSnack =
-              stockSnack snack 10 $ stockSnack snack 10 testSnackMachine
-          in do
-            Assert.equal (listSnacks machineWithSnack) [snack]
+        let
+          snack =
+            Snack {name: "candy bar", unitPrice: 150}
+          machineWithSnack =
+            stockSnack snack 10 $ stockSnack snack 10 testSnackMachine
+        in do
+          Assert.equal (listSnacks machineWithSnack) [snack]

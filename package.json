@@ -5,7 +5,8 @@
   "main": "bin/server.js",
   "scripts": {
     "test": "pulp test",
-    "postinstall": "bower install"
+    "postinstall": "bower install",
+    "clean:purs": "rm -rf output"
   },
   "repository": {
     "type": "git",
