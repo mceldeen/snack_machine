@@ -28,7 +28,6 @@ instance makeChangeErrorShow ∷ Show MakeChangeError where
 derive instance eqChangeErrorShow ∷ Eq MakeChangeError
 
 
--- | Law: `convertToValue <$> makeChange (a + b) c == Right c` where `convertToValue b >= c`
 class (Ring moneySet) ⇐ CoinSet moneySet where
     makeChange ∷ 
         ∀ amount
